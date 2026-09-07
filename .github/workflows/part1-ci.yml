@@ -23,6 +23,15 @@ jobs:
 
       - name: Check SQL database script
         run: test -s docs/RaceDay_Database.sql
-
+      
+      - name: Validate required database tables
+        run: |
+          grep -qi "CREATE TABLE dbo.\[User\]" docs/RaceDay_Database.sql
+          grep -qi "CREATE TABLE dbo.EventType" docs/RaceDay_Database.sql
+          grep -qi "CREATE TABLE dbo.Event" docs/RaceDay_Database.sql
+          grep -qi "CREATE TABLE dbo.Category" docs/RaceDay_Database.sql
+          grep -qi "CREATE TABLE dbo.Enrolment" docs/RaceDay_Database.sql
+          grep -qi "CREATE TABLE dbo.Result" docs/RaceDay_Database.sql
+          
       - name: Check root README
         run: test -s README.md
