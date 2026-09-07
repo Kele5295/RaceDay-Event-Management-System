@@ -116,7 +116,16 @@ RaceDay-Event-Management-System/
 │   └── ci-success.png
 └── README.md
 ```
+## Design Consistency
 
+The Part 1 deliverables were designed to support one another.
+
+- The ERD defines the RaceDay entities, attributes and relationships.
+- The SQL Server script implements the same database structure using tables, primary keys, foreign keys and constraints.
+- The RESTful API plan uses the same RaceDay resources and role requirements defined during system planning.
+- Organiser and Participant permissions are consistently represented across the database and API planning.
+
+This consistency provides a clear foundation for the implementation work that will follow in Part 2.
 ## Technologies Used
 
 - Microsoft SQL Server
