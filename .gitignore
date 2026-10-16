@@ -1,0 +1,14 @@
+# Visual Studio settings and caches
+.vs/
+*.user
+*.suo
+
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# Test output
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
