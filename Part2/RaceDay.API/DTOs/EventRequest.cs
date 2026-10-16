@@ -16,7 +16,10 @@ public class EventRequest
     [Required, StringLength(150)]
     public string Location { get; set; } = string.Empty;
 
-    [Range(typeof(decimal), "0.01", "9999.99")]
+    [Range(typeof(decimal), "0.01", "9999.99",
+        ParseLimitsInInvariantCulture = true,
+        ConvertValueInInvariantCulture = true,
+        ErrorMessage = "Distance must be between 0.01 and 9999.99.")]
     public decimal Distance { get; set; }
 
     [Range(1, int.MaxValue)]
