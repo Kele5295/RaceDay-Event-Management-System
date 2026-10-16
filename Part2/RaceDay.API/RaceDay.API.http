@@ -1,0 +1,53 @@
+@baseUrl = https://localhost:7144
+
+### List available events
+GET {{baseUrl}}/api/events
+Accept: application/json
+
+### List event types
+GET {{baseUrl}}/api/eventtypes
+Accept: application/json
+
+### Register an organiser
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Demo",
+  "lastName": "Organiser",
+  "email": "demo.organiser@example.com",
+  "password": "RaceDayDemo!2026",
+  "role": "Organiser",
+  "phoneNumber": "0825550101"
+}
+
+### Log in as organiser
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "demo.organiser@example.com",
+  "password": "RaceDayDemo!2026"
+}
+
+### Register a participant
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Demo",
+  "lastName": "Participant",
+  "email": "demo.participant@example.com",
+  "password": "RaceDayDemo!2026",
+  "role": "Participant",
+  "phoneNumber": "0825550102"
+}
+
+### Log in as participant
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "demo.participant@example.com",
+  "password": "RaceDayDemo!2026"
+}
