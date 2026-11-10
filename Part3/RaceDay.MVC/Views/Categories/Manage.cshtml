@@ -1,0 +1,162 @@
+﻿@model RaceDay.MVC.Models.CategoryManageViewModel
+
+@{
+    ViewData["Title"] = "Manage categories";
+    bool editing = Model.Form.CategoryID != 0;
+}
+
+<a asp-controller="Events"
+   asp-action="Manage"
+   class="text-success">
+    &larr; Back to my events
+</a>
+
+<h1 class="h2 mt-3">Manage categories</h1>
+<p class="text-muted mb-4">@Model.Event.EventName</p>
+
+@if (TempData["Success"] is string message)
+{
+    <div class="alert alert-success" role="status">
+        @message
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="h4">
+                    @(editing ? "Edit category" : "Add category")
+                </h2>
+
+                <form asp-controller="Categories"
+                      asp-action="Save"
+                      method="post">
+
+                    <input asp-for="Form.CategoryID" type="hidden" />
+                    <input asp-for="Form.EventID" type="hidden" />
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Form.CategoryName"
+                               class="form-label"></label>
+                        <input asp-for="Form.CategoryName"
+                               class="form-control" />
+                        <span asp-validation-for="Form.CategoryName"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Form.Description"
+                               class="form-label"></label>
+                        <textarea asp-for="Form.Description"
+                                  class="form-control"
+                                  rows="3"></textarea>
+                        <span asp-validation-for="Form.Description"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Form.MaximumParticipants"
+                               class="form-label"></label>
+                        <input asp-for="Form.MaximumParticipants"
+                               type="number"
+                               min="1"
+                               class="form-control" />
+                        <div class="form-text">
+                            Leave blank for no capacity limit.
+                        </div>
+                        <span asp-validation-for="Form.MaximumParticipants"
+                              class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        @(editing ? "Save changes" : "Add category")
+                    </button>
+
+                    @if (editing)
+                    {
+                        <a asp-action="Manage"
+                           asp-route-eventId="@Model.Event.EventID"
+                           class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <h2 class="h4">Existing categories</h2>
+
+        @if (Model.Categories.Count == 0)
+        {
+            <div class="alert alert-info">
+                Add a category so participants can enter this event.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Category</th>
+                            <th>Capacity</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@category.CategoryName</strong>
+                                    <div class="small text-muted">
+                                        @category.Description
+                                    </div>
+                                </td>
+                                <td>
+                                    @(category.MaximumParticipants
+                                        ?.ToString() ?? "No limit")
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <a asp-action="Edit"
+                                           asp-route-eventId="@Model.Event.EventID"
+                                           asp-route-id="@category.CategoryID"
+                                           class="btn btn-sm btn-outline-primary">
+                                            Edit
+                                        </a>
+
+                                        <form asp-action="Delete"
+                                              method="post"
+                                              onsubmit="return confirm('Delete this category?');">
+                                            <input type="hidden"
+                                                   name="eventId"
+                                                   value="@Model.Event.EventID" />
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@category.CategoryID" />
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
