@@ -7,9 +7,14 @@
     bool isOwner =
         Context.Session.GetString("Role") == "Organiser"
         && Context.Session.GetInt32("UserID") == Model.Event.OrganiserID;
+
+    bool isParticipant =
+        Context.Session.GetString("Role") == "Participant";
 }
 
-<a asp-action="Index" class="text-success">
+<a asp-controller="Events"
+   asp-action="Index"
+   class="text-success">
     &larr; Back to events
 </a>
 
@@ -47,7 +52,10 @@
                 @foreach (var category in Model.Categories)
                 {
                     <div class="list-group-item p-3">
-                        <h3 class="h6 mb-1">@category.CategoryName</h3>
+                        <h3 class="h6 mb-1">
+                            @category.CategoryName
+                        </h3>
+
                         <p class="mb-1 text-muted">
                             @category.Description
                         </p>
@@ -74,13 +82,29 @@
                         You are the organiser of this event.
                     </p>
 
-                    <a asp-action="Edit"
+                    <a asp-controller="Events"
+                       asp-action="Edit"
                        asp-route-id="@Model.Event.EventID"
                        class="btn btn-success w-100 mb-2">
                         Edit event
                     </a>
 
-                    <a asp-action="Manage"
+                    <a asp-controller="Categories"
+                       asp-action="Manage"
+                       asp-route-eventId="@Model.Event.EventID"
+                       class="btn btn-outline-success w-100 mb-2">
+                        Manage categories
+                    </a>
+
+                    <a asp-controller="Enrolments"
+                       asp-action="Event"
+                       asp-route-eventId="@Model.Event.EventID"
+                       class="btn btn-outline-primary w-100 mb-2">
+                        View enrolments
+                    </a>
+
+                    <a asp-controller="Events"
+                       asp-action="Manage"
                        class="btn btn-outline-secondary w-100">
                         My events
                     </a>
@@ -97,10 +121,65 @@
                         Log in
                     </a>
                 }
+                else if (isParticipant)
+                {
+                    @if (Model.Event.EventDate.Date < DateTime.Today)
+                    {
+                        <p class="text-muted">
+                            Entries are closed because this event has passed.
+                        </p>
+                    }
+                    else if (Model.Categories.Count == 0)
+                    {
+                        <p class="text-muted">
+                            Entries will be available once categories are added.
+                        </p>
+                    }
+                    else
+                    {
+                        <form asp-controller="Enrolments"
+                              asp-action="Enter"
+                              method="post">
+
+                            <input type="hidden"
+                                   name="EventID"
+                                   value="@Model.Event.EventID" />
+
+                            <label for="entryCategory" class="form-label">
+                                Choose your category
+                            </label>
+
+                            <select id="entryCategory"
+                                    name="CategoryID"
+                                    class="form-select mb-3"
+                                    required>
+                                <option value="">Select a category</option>
+
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <option value="@category.CategoryID">
+                                        @category.CategoryName
+                                    </option>
+                                }
+                            </select>
+
+                            <button type="submit"
+                                    class="btn btn-success w-100">
+                                Enter event
+                            </button>
+                        </form>
+                    }
+
+                    <a asp-controller="Enrolments"
+                       asp-action="Mine"
+                       class="btn btn-outline-secondary w-100 mt-2">
+                        My events
+                    </a>
+                }
                 else
                 {
                     <p class="text-muted mb-0">
-                        Review the available categories above.
+                        Log in with a participant account to enter this event.
                     </p>
                 }
             </div>

@@ -1,0 +1,91 @@
+﻿@model RaceDay.MVC.Models.EventEnrolmentsViewModel
+
+@{
+    ViewData["Title"] = "Event enrolments";
+
+    var confirmedCount = Model.Enrolments.Count(
+        entry => entry.Status == "Confirmed");
+}
+
+<a asp-controller="Events"
+   asp-action="Manage"
+   class="text-success">
+    &larr; Back to my events
+</a>
+
+<div class="my-4">
+    <h1>Event enrolments</h1>
+    <p class="lead mb-1">@Model.Event.EventName</p>
+    <p class="text-muted">
+        @Model.Event.EventDate.ToString("dd MMM yyyy")
+        &middot; @Model.Event.Location
+    </p>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="h6 text-muted">Total entries</h2>
+                <p class="h3 mb-0">@Model.Enrolments.Count</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="h6 text-muted">Confirmed entries</h2>
+                <p class="h3 mb-0">@confirmedCount</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Enrolments.Count == 0)
+{
+    <div class="alert alert-info">
+        No participants have entered this event yet.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Participant</th>
+                    <th>Category</th>
+                    <th>Entry date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var entry in Model.Enrolments)
+                {
+                    var badgeClass = entry.Status switch
+                    {
+                        "Confirmed" => "bg-success",
+                        "Pending" => "bg-warning text-dark",
+                        "Cancelled" => "bg-secondary",
+                        _ => "bg-info text-dark"
+                    };
+
+                    <tr>
+                        <td>@entry.FirstName @entry.LastName</td>
+                        <td>@entry.CategoryName</td>
+                        <td>
+                            @entry.EnrolmentDate.ToString("dd MMM yyyy")
+                        </td>
+                        <td>
+                            <span class="badge @badgeClass">
+                                @entry.Status
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
