@@ -1,0 +1,106 @@
+﻿@model RaceDay.MVC.Models.EventListViewModel
+
+@{
+    ViewData["Title"] = "Explore events";
+}
+
+<section class="bg-dark text-white rounded-3 p-4 p-md-5 mb-4">
+    <span class="badge bg-success mb-3">RUN · WALK · CYCLE</span>
+    <h1 class="display-5 fw-bold">Your next starting line.</h1>
+    <p class="lead mb-0">
+        Explore upcoming events and find your next challenge.
+    </p>
+</section>
+
+<form asp-controller="Events"
+      asp-action="Index"
+      method="get"
+      class="row g-3 mb-4">
+
+    <div class="col-md-6">
+        <label asp-for="Search" class="form-label">
+            Event name or location
+        </label>
+        <input asp-for="Search"
+               class="form-control"
+               placeholder="Search events..." />
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="EventTypeID" class="form-label">
+            Event type
+        </label>
+        <select asp-for="EventTypeID"
+                class="form-select"
+                asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(
+                                Model.EventTypes, "EventTypeID", "TypeName"))">
+            <option value="">All types</option>
+        </select>
+    </div>
+
+    <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-success w-100">
+            Find events
+        </button>
+    </div>
+</form>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Upcoming events</h2>
+    <span class="text-muted">@Model.Events.Count event(s)</span>
+</div>
+
+@if (Model.Events.Count == 0)
+{
+    <div class="alert alert-info">
+        No upcoming events match your search.
+        <a asp-action="Index">Clear filters</a>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var item in Model.Events)
+        {
+            var typeName = Model.EventTypes
+                .FirstOrDefault(t => t.EventTypeID == item.EventTypeID)
+                ?.TypeName ?? "Sport";
+
+            <div class="col-md-6 col-lg-4">
+                <article class="card h-100 shadow-sm">
+                    <div class="card-header bg-success text-white py-3">
+                        <span class="fw-bold">@typeName</span>
+                        <span class="float-end">
+                            @item.Distance.ToString("0.##") km
+                        </span>
+                    </div>
+
+                    <div class="card-body">
+                        <h3 class="h5">@item.EventName</h3>
+                        <p class="text-muted mb-2">
+                            @item.EventDate.ToString("ddd, dd MMM yyyy")
+                        </p>
+                        <p class="mb-3">@item.Location</p>
+
+                        @if (!string.IsNullOrWhiteSpace(item.Description))
+                        {
+                            <p class="text-muted">
+                                @(item.Description.Length > 140
+                                    ? item.Description[..140] + "..."
+                                    : item.Description)
+                            </p>
+                        }
+                    </div>
+
+                    <div class="card-footer bg-white border-0 pb-3">
+                        <a asp-action="Details"
+                           asp-route-id="@item.EventID"
+                           class="btn btn-outline-success w-100">
+                            View event
+                        </a>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
+}

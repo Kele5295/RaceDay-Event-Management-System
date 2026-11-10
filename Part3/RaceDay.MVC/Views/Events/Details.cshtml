@@ -1,0 +1,109 @@
+﻿@using Microsoft.AspNetCore.Http
+@model RaceDay.MVC.Models.EventDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Event.EventName;
+
+    bool isOwner =
+        Context.Session.GetString("Role") == "Organiser"
+        && Context.Session.GetInt32("UserID") == Model.Event.OrganiserID;
+}
+
+<a asp-action="Index" class="text-success">
+    &larr; Back to events
+</a>
+
+<section class="bg-dark text-white rounded-3 p-4 p-md-5 my-4">
+    <span class="badge bg-success mb-3">
+        @Model.Event.Distance.ToString("0.##") km
+    </span>
+
+    <h1 class="display-6 fw-bold">@Model.Event.EventName</h1>
+
+    <p class="lead mb-1">
+        @Model.Event.EventDate.ToString("dddd, dd MMMM yyyy")
+    </p>
+
+    <p class="mb-0">@Model.Event.Location</p>
+</section>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <h2 class="h4">About this event</h2>
+
+        <p style="white-space: pre-line;">@Model.Event.Description</p>
+
+        <h2 class="h4 mt-4">Available categories</h2>
+
+        @if (Model.Categories.Count == 0)
+        {
+            <div class="alert alert-info">
+                No categories have been added yet.
+            </div>
+        }
+        else
+        {
+            <div class="list-group">
+                @foreach (var category in Model.Categories)
+                {
+                    <div class="list-group-item p-3">
+                        <h3 class="h6 mb-1">@category.CategoryName</h3>
+                        <p class="mb-1 text-muted">
+                            @category.Description
+                        </p>
+
+                        <small>
+                            Capacity:
+                            @(category.MaximumParticipants?.ToString()
+                                ?? "No limit")
+                        </small>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h5">RaceDay event</h2>
+
+                @if (isOwner)
+                {
+                    <p class="text-muted">
+                        You are the organiser of this event.
+                    </p>
+
+                    <a asp-action="Edit"
+                       asp-route-id="@Model.Event.EventID"
+                       class="btn btn-success w-100 mb-2">
+                        Edit event
+                    </a>
+
+                    <a asp-action="Manage"
+                       class="btn btn-outline-secondary w-100">
+                        My events
+                    </a>
+                }
+                else if (!Context.Session.GetInt32("UserID").HasValue)
+                {
+                    <p class="text-muted">
+                        Log in as a participant to enter events.
+                    </p>
+
+                    <a asp-controller="Account"
+                       asp-action="Login"
+                       class="btn btn-success w-100">
+                        Log in
+                    </a>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">
+                        Review the available categories above.
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
