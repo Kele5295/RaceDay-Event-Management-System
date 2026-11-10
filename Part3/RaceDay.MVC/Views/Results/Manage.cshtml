@@ -1,0 +1,211 @@
+﻿@model RaceDay.MVC.Models.EventResultsViewModel
+
+@{
+    ViewData["Title"] = "Manage results";
+
+    bool isEditing = Model.Form.ResultID != 0;
+    bool eventHasStarted = Model.Event.EventDate.Date <= DateTime.Today;
+
+    var availableEntries = Model.Enrolments
+        .Where(entry =>
+            entry.Status == "Confirmed"
+            && (isEditing
+                ? entry.EnrolmentID == Model.Form.EnrolmentID
+                : !Model.Results.Any(result =>
+                    result.EnrolmentID == entry.EnrolmentID)))
+        .OrderBy(entry => entry.LastName)
+        .ThenBy(entry => entry.FirstName)
+        .ToList();
+}
+
+<a asp-controller="Events"
+   asp-action="Manage"
+   class="text-success">
+    &larr; Back to my events
+</a>
+
+<div class="my-4">
+    <h1>Manage results</h1>
+    <p class="lead mb-1">@Model.Event.EventName</p>
+    <p class="text-muted">
+        @Model.Event.EventDate.ToString("dd MMM yyyy")
+        &middot; @Model.Event.Location
+    </p>
+</div>
+
+@if (TempData["Success"] is string success)
+{
+    <div class="alert alert-success" role="alert">
+        @success
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4">
+                    @(isEditing ? "Edit result" : "Record result")
+                </h2>
+
+                @if (!eventHasStarted)
+                {
+                    <div class="alert alert-info mb-0">
+                        Results can be recorded from the event date.
+                    </div>
+                }
+                else if (availableEntries.Count == 0)
+                {
+                    <div class="alert alert-info mb-0">
+                        There are no confirmed entries awaiting results.
+                    </div>
+                }
+                else
+                {
+                    <form asp-controller="Results"
+                          asp-action="Save"
+                          method="post">
+
+                        <div asp-validation-summary="All"
+                             class="text-danger"
+                             role="alert"></div>
+
+                        <input asp-for="Form.ResultID" type="hidden" />
+                        <input asp-for="Form.EventID" type="hidden" />
+
+                        <div class="mb-3">
+                            <label asp-for="Form.EnrolmentID"
+                                   class="form-label"></label>
+
+                            <select asp-for="Form.EnrolmentID"
+                                    class="form-select">
+                                <option value="">Select a participant</option>
+
+                                @foreach (var entry in availableEntries)
+                                {
+                                    <option value="@entry.EnrolmentID">
+                                        @entry.FirstName @entry.LastName
+                                        — @entry.CategoryName
+                                    </option>
+                                }
+                            </select>
+
+                            <span asp-validation-for="Form.EnrolmentID"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Form.FinishTime"
+                                   class="form-label"></label>
+
+                            <input asp-for="Form.FinishTime"
+                                   class="form-control"
+                                   placeholder="00:25:30"
+                                   maxlength="8"
+                                   aria-describedby="finishTimeHelp" />
+
+                            <div id="finishTimeHelp" class="form-text">
+                                Use HH:mm:ss, for example 00:25:30.
+                            </div>
+
+                            <span asp-validation-for="Form.FinishTime"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Form.FinishingPosition"
+                                   class="form-label"></label>
+
+                            <input asp-for="Form.FinishingPosition"
+                                   class="form-control"
+                                   type="number"
+                                   min="1"
+                                   step="1" />
+
+                            <span asp-validation-for="Form.FinishingPosition"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">
+                            @(isEditing ? "Save changes" : "Record result")
+                        </button>
+
+                        @if (isEditing)
+                        {
+                            <a asp-action="Manage"
+                               asp-route-eventId="@Model.Event.EventID"
+                               class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        }
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <h2 class="h4">Recorded results</h2>
+
+        @if (Model.Results.Count == 0)
+        {
+            <div class="alert alert-info">
+                No results have been recorded for this event.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Position</th>
+                            <th>Participant</th>
+                            <th>Category</th>
+                            <th>Finish time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var result in Model.Results
+                            .OrderBy(item => item.FinishingPosition
+                                ?? int.MaxValue))
+                        {
+                            <tr>
+                                <td>
+                                    @(result.FinishingPosition?.ToString()
+                                        ?? "—")
+                                </td>
+
+                                <td>
+                                    @result.FirstName @result.LastName
+                                </td>
+
+                                <td>@result.CategoryName</td>
+
+                                <td>
+                                    @(result.FinishTime?.ToString(
+                                        @"hh\:mm\:ss") ?? "Not recorded")
+                                </td>
+
+                                <td>
+                                    <a asp-action="Edit"
+                                       asp-route-eventId="@Model.Event.EventID"
+                                       asp-route-id="@result.ResultID"
+                                       class="btn btn-outline-primary btn-sm">
+                                        Edit
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

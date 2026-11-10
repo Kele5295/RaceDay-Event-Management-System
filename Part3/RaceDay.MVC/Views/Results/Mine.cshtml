@@ -1,0 +1,89 @@
+﻿@model List<RaceDay.MVC.Models.ResultViewModel>
+
+@{
+    ViewData["Title"] = "My results";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1>My results</h1>
+        <p class="text-muted mb-0">
+            Your RaceDay results and performance history.
+        </p>
+    </div>
+
+    <a asp-controller="Enrolments"
+       asp-action="Mine"
+       class="btn btn-outline-success">
+        My events
+    </a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">
+        You do not have any recorded results yet.
+        Results will appear here once an organiser captures them.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Finish time</th>
+                    <th>Position</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var result in Model)
+                {
+                    <tr>
+                        <td>@result.EventName</td>
+
+                        <td>
+                            @result.EventDate.ToString("dd MMM yyyy")
+                        </td>
+
+                        <td>@result.CategoryName</td>
+
+                        <td>
+                            @(result.FinishTime?.ToString(@"hh\:mm\:ss")
+                                ?? "Not recorded")
+                        </td>
+
+                        <td>
+                            @if (result.FinishingPosition.HasValue)
+                            {
+                                <span class="badge bg-success">
+                                    #@result.FinishingPosition
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Not recorded
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            <a asp-controller="Events"
+                               asp-action="Details"
+                               asp-route-id="@result.EventID"
+                               class="btn btn-outline-secondary btn-sm">
+                                View event
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
