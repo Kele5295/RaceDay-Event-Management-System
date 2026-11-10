@@ -1,8 +1,147 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Home";
+
+    var userId = Context.Session.GetInt32("UserID");
+    var role = Context.Session.GetString("Role");
+    var displayName = Context.Session.GetString("DisplayName");
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="bg-dark text-white rounded-3 p-4 p-md-5 mb-4">
+    <span class="badge bg-success mb-3">RUN · WALK · CYCLE</span>
+
+    <h1 class="display-5 fw-bold">Your next starting line.</h1>
+
+    <p class="lead">
+        Discover running, walking and cycling events.
+        Enter your next challenge and track your results with RaceDay.
+    </p>
+
+    <a asp-controller="Events"
+       asp-action="Index"
+       class="btn btn-success btn-lg">
+        Explore events
+    </a>
+
+    @if (!userId.HasValue)
+    {
+        <a asp-controller="Account"
+           asp-action="Register"
+           class="btn btn-outline-light btn-lg ms-sm-2 mt-2 mt-sm-0">
+            Create an account
+        </a>
+    }
+</section>
+
+@if (userId.HasValue)
+{
+    <h2 class="h3 mb-3">Welcome, @displayName</h2>
+
+    <div class="row g-4">
+        @if (role == "Organiser")
+        {
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h3 class="h5">Manage your events</h3>
+                        <p class="text-muted">
+                            Update events, manage categories and view
+                            participant entries.
+                        </p>
+
+                        <a asp-controller="Events"
+                           asp-action="Manage"
+                           class="btn btn-success">
+                            My events
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h3 class="h5">Plan your next event</h3>
+                        <p class="text-muted">
+                            Create an event and add categories for
+                            participants to enter.
+                        </p>
+
+                        <a asp-controller="Events"
+                           asp-action="Create"
+                           class="btn btn-outline-success">
+                            Create event
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (role == "Participant")
+        {
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h3 class="h5">Your event entries</h3>
+                        <p class="text-muted">
+                            View your entered events, categories and
+                            enrolment status.
+                        </p>
+
+                        <a asp-controller="Enrolments"
+                           asp-action="Mine"
+                           class="btn btn-success">
+                            My events
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h3 class="h5">Your performance history</h3>
+                        <p class="text-muted">
+                            Review your recorded finish times and
+                            finishing positions.
+                        </p>
+
+                        <a asp-controller="Results"
+                           asp-action="Mine"
+                           class="btn btn-outline-success">
+                            My results
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h4">For participants</h2>
+                    <p class="mb-0 text-muted">
+                        Find your next event, choose a category,
+                        manage your entries and view your results.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h4">For organisers</h2>
+                    <p class="mb-0 text-muted">
+                        Create events, manage categories, view
+                        enrolments and capture participant results.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
